@@ -146,7 +146,7 @@ class cloudfiles {
 					CURLOPT_HTTPHEADER => [
 						"X-Auth-Token: {$this->token}",
 						"X-CDN-Enabled: True",
-						"X-TTL: $ttl",
+						"X-TTL: {$ttl}",
 					],
 				]
 			);
@@ -225,7 +225,7 @@ class cloudfiles {
 					CURLOPT_PUT => 1,
 					CURLOPT_HTTPHEADER => [
 						"X-Auth-Token: {$this->token}",
-						"Content-length: $file_size",
+						"Content-length: {$file_size}",
 					],
 					CURLOPT_INFILE => fopen($path, "r"),
 					CURLOPT_INFILESIZE => $file_size,
