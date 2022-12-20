@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Simple class that supposed to work with Rackspace Cloud Files API 1.0 without dependencies. PHP8 ready.
+ *
+ * @link https://github.com/atreshilov/rackspace-cloudfiles
+ * @version 1.0
+ * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
+ */
+
 class cloudfiles {
 
 	private string $endpoint;
@@ -254,13 +262,8 @@ class cloudfiles {
 					],
 				]
 			);
-			$path_temp=$path.".".uniqid("", true);
-			if (file_put_contents($path_temp, $this->curl_response_body, LOCK_EX)===false) {
-				throw new Exception("IO error during writing to '$path_temp'");
-			}
-			if (rename($path_temp, $path)===false) {
-				unlink($path_temp);
-				throw new Exception("IO error during renaming to '$path'");
+			if (false===file_put_contents($path, $this->curl_response_body, LOCK_EX)) {
+				throw new Exception("IO error during writing to '$path'");
 			}
 		} catch (Exception $e) {
 			throw new Exception("Unable to download file '$file_name' from container '$container_name' -- {$e->getMessage()}");
