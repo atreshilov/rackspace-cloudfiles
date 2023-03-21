@@ -4,7 +4,7 @@
  * Simple class that supposed to work with Rackspace Cloud Files API 1.0 without dependencies. PHP8 ready.
  *
  * @link https://github.com/atreshilov/rackspace-cloudfiles
- * @version 1.0
+ * @version 1.1
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
@@ -104,18 +104,24 @@ class cloudfiles {
 		}
 	}
 	/**
+	 * @param string $container_name
+	 * @param string[] $custom_headers
 	 * @return void
 	 * @throws Exception
 	 */
-	function container_create($container_name){
+	function container_create(string $container_name, array $custom_headers=[]){
+		$container_name=rawurlencode($container_name);
 		try {
 			$this->curl(
 				"{$this->endpoint}/{$container_name}",
 				"PUT",
 				[
-					CURLOPT_HTTPHEADER => [
-						"X-Auth-Token: {$this->token}",
-					],
+					CURLOPT_HTTPHEADER => array_merge(
+						[
+							"X-Auth-Token: {$this->token}",
+						],
+						$custom_headers
+					),
 				]
 			);
 		} catch (Exception $e) {
@@ -123,11 +129,13 @@ class cloudfiles {
 		}
 	}
 	/**
+	 * @param string $container_name
 	 * @return void
 	 * @throws Exception
 	 */
-	function container_delete($container_name){
+	function container_delete(string $container_name){
 		try {
+			$container_name=rawurlencode($container_name);
 			$this->curl(
 				"{$this->endpoint}/{$container_name}",
 				"DELETE",
@@ -142,10 +150,13 @@ class cloudfiles {
 		}
 	}
 	/**
+	 * @param string $container_name
+	 * @param int $ttl
 	 * @return void
 	 * @throws Exception
 	 */
-	function container_cdn_enable($container_name, int $ttl=2589000) {
+	function container_cdn_enable(string $container_name, int $ttl=2589000) {
+		$container_name=rawurlencode($container_name);
 		try {
 			$this->curl(
 				"{$this->endpoint_cdn}/{$container_name}",
@@ -163,10 +174,12 @@ class cloudfiles {
 		}
 	}
 	/**
+	 * @param string $container_name
 	 * @return void
 	 * @throws Exception
 	 */
-	function container_cdn_disable($container_name) {
+	function container_cdn_disable(string $container_name) {
+		$container_name=rawurlencode($container_name);
 		try {
 			$this->curl(
 				"{$this->endpoint_cdn}/{$container_name}",
@@ -183,11 +196,12 @@ class cloudfiles {
 		}
 	}
 	/**
-	 * @param $container_name
+	 * @param string $container_name
 	 * @return string
 	 * @throws Exception
 	 */
-	function container_get_cdn_ssl_uri($container_name): string{
+	function container_get_cdn_ssl_uri(string $container_name): string{
+		$container_name=rawurlencode($container_name);
 		try {
 			$this->curl(
 				"{$this->endpoint_cdn}/{$container_name}",
@@ -214,10 +228,13 @@ class cloudfiles {
 	 * @param string $container_name
 	 * @param string $file_name
 	 * @param string $path
+	 * @param string[] $custom_headers
 	 * @return void
 	 * @throws Exception
 	 */
-	function file_upload(string $container_name, string $file_name, string $path){
+	function file_upload(string $container_name, string $file_name, string $path, array $custom_headers=[]) {
+		$container_name=rawurlencode($container_name);
+		$file_name=rawurlencode($file_name);
 		try {
 			if (!is_file($path)) {
 				throw new Exception("'$path' is not a file");
@@ -231,10 +248,13 @@ class cloudfiles {
 				"PUT",
 				[
 					CURLOPT_PUT => 1,
-					CURLOPT_HTTPHEADER => [
-						"X-Auth-Token: {$this->token}",
-						"Content-length: {$file_size}",
-					],
+					CURLOPT_HTTPHEADER => array_merge(
+						[
+							"X-Auth-Token: {$this->token}",
+							"Content-length: {$file_size}",
+						],
+						$custom_headers
+					),
 					CURLOPT_INFILE => fopen($path, "r"),
 					CURLOPT_INFILESIZE => $file_size,
 				]
@@ -251,6 +271,8 @@ class cloudfiles {
 	 * @throws Exception
 	 */
 	function file_download(string $container_name, string $file_name, string $path) {
+		$container_name=rawurlencode($container_name);
+		$file_name=rawurlencode($file_name);
 		try {
 			$this->curl(
 				"{$this->endpoint}/{$container_name}/{$file_name}",
@@ -276,6 +298,8 @@ class cloudfiles {
 	 * @throws Exception
 	 */
 	function file_delete(string $container_name, string $file_name) {
+		$container_name=rawurlencode($container_name);
+		$file_name=rawurlencode($file_name);
 		try {
 			$this->curl(
 				"{$this->endpoint}/{$container_name}/{$file_name}",
