@@ -130,6 +130,34 @@ class cloudfiles {
 	}
 	/**
 	 * @param string $container_name
+	 * @param string $format JSON or XML
+	 * @return string
+	 * @throws Exception
+	 */
+	function container_get_file_list(string $container_name, string $format="JSON"):array {
+		$container_name=rawurlencode($container_name);
+		$format=rawurlencode($format);
+		try {
+			$this->curl(
+				"{$this->endpoint}/{$container_name}?format={$format}",
+				"GET",
+				[
+					CURLOPT_HTTPHEADER => [
+						"X-Auth-Token: {$this->token}",
+					],
+				]
+			);
+			$json = json_decode($this->curl_response_body, true);
+			if (!is_array($json)) {
+				throw new Exception("response is not a JSON array");
+			}
+			return $json;
+		} catch (Exception $e) {
+			throw new Exception("Unable get container '$container_name' file list -- {$e->getMessage()}");
+		}
+	}
+	/**
+	 * @param string $container_name
 	 * @return void
 	 * @throws Exception
 	 */
@@ -183,7 +211,7 @@ class cloudfiles {
 		try {
 			$this->curl(
 				"{$this->endpoint_cdn}/{$container_name}",
-				"PUT",
+				"POST",
 				[
 					CURLOPT_HTTPHEADER => [
 						"X-Auth-Token: {$this->token}",
